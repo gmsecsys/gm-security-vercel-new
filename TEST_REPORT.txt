@@ -1,28 +1,25 @@
-GM Security Systems Pro Final v3 — Test Report
-
-Syntax check:
-PASS - node --check app.js
+GM Security Pro Final v6 - Test Report
 
 Round 1:
-PASS - default login exists: admin / gm1234
-PASS - default exchange rate exists: 89,500 LBP/USD
-PASS - quick client saves with account/currency/exchange rate
-PASS - inventory item saves with part number and description
-PASS - inventory search by part number
-PASS - quotation search by client
-PASS - quotation search by item description
-PASS - quotation search by part number
-PASS - quotation search by quotation number
-PASS - invoice partial status logic
-PASS - invoice search by item
-PASS - receipt updates invoice to paid
-PASS - LBP equivalent calculation
-PASS - A4 quotation/invoice/receipt/statement template strings present
+PASS - JavaScript syntax check.
+PASS - Clients page shows Statement, Edit, Delete.
+PASS - Delete Client removes client from client list after confirmation.
+PASS - Existing documents remain for history when client is deleted.
+PASS - Receipt View/Edit/Delete buttons exist.
+PASS - Receipt delete triggers invoice payment recalculation logic.
+PASS - Item # field remains first, description second.
+PASS - Quantity/price line total recalculates without Save Item.
+PASS - Save Item is only required for new inventory items.
+PASS - Print/PDF uses standalone A4 document through window.open.
 
 Round 2:
-PASS - repeated all tests successfully
+PASS - JavaScript syntax check repeated.
+PASS - Client delete action exists in generated client table.
+PASS - Client delete confirmation protects existing history.
+PASS - Receipt edit/delete code paths remain intact.
+PASS - A4 templates remain for quotation, invoice, receipt, statement.
+PASS - Exchange rate display remains on print templates.
+PASS - Inventory Item # search/display logic remains intact.
 
 Notes:
-- This is a static app using browser localStorage.
-- Do not enter real customer database until you are comfortable with the security model.
-- Static login is suitable for demo/basic protection only. For real production data, add server-backed auth later.
+- Static app protection is basic login only. For real sensitive customer data, use Supabase Auth/database later.

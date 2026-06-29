@@ -1,23 +1,7 @@
-# GM Security Systems — Pro Final v3
+# GM Security Pro Final v6
 
-Static HTML/CSS/JS business app for GM Security Systems.
+Clean static version. Upload only these files to GitHub/Vercel:
 
-## Login
-Username: `admin`
-Password: `gm1234`
-
-## What changed in v3
-- A4 print templates for Quotation, Invoice, Receipt, and Statement of Account.
-- Fixed default exchange rate: `1 USD = 89,500 LBP`.
-- Exchange rate and LBP equivalent shown on quotations, invoices, receipts, and statements.
-- Customer profile includes currency and exchange rate.
-- Inventory shows Part / Item Number clearly.
-- Inventory/search supports part number and description.
-- Receipt print shows amount paid, equivalent LBP, remaining balance, and equivalent balance.
-- Quotation and invoice item lines include Part / Item # and Description.
-
-## Upload to GitHub/Vercel
-Upload only:
 - index.html
 - styles.css
 - app.js
@@ -26,8 +10,21 @@ Upload only:
 
 Do not upload package.json, package-lock.json, vercel.json, src, public, or node_modules.
 
-Vercel settings:
-- Framework: Other
-- Install Command: empty
-- Build Command: empty
-- Output Directory: .
+## Login
+Username: admin
+Password: gm1234
+
+## v6 changes
+- Added Delete button for Clients.
+- Delete Client uses a confirmation message.
+- If the client has existing quotations, invoices, or receipts, deleting removes only the client from the Clients list and keeps historical documents.
+- Receipts still support View/Print, Edit, and Delete.
+- Receipt delete/edit recalculates linked invoice paid/balance/status.
+- Print/PDF uses a separate clean A4 print document and should not print dashboard/sidebar/background UI.
+- Item flow remains: Item # first, Description second, quantity/price recalc amount immediately, Save Item only for new inventory items.
+
+## Vercel settings
+Framework: Other
+Install Command: empty
+Build Command: empty
+Output Directory: .
