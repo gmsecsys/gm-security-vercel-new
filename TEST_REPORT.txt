@@ -1,35 +1,17 @@
-GM Security Systems - Test Report
+GM Security Pro Final v2 - Test Report
 
-Version: Static Pro Final
-Date: 2026-06-29
-
-Static deployment checks:
-- No npm required
-- No package.json
-- No package-lock.json
-- No vercel.json
-- No build command
-- No install command
-
-Syntax checks:
-- JavaScript syntax check: PASSED
-
-Logic tests repeated twice:
 Round 1:
-- Default login exists: PASSED
-- Quick client save from document flow: PASSED
-- Quick item/service save from document flow: PASSED
-- Quotation search by client: PASSED
-- Quotation search by item: PASSED
-- Quotation search by quote number: PASSED
-- Convert-style invoice logic: PASSED
-- Invoice search by item: PASSED
-- Receipt payment updates invoice status: PASSED
-- Outstanding balance calculation: PASSED
+PASS - JavaScript syntax check.
+PASS - Default data migration supports old clients/items and new fields.
+PASS - Client form includes account number, business/company name, first/last name, contact info, location, currency.
+PASS - Quick client inside quotation/invoice saves to Clients and auto-selects.
+PASS - Item lines include part/item number, description, qty, unit price, total.
+PASS - Custom item cannot be used to save document until saved to Inventory.
+PASS - Add Line is blocked until current line is valid and saved.
+PASS - Existing inventory item autofills price and is marked saved.
 
 Round 2:
-- Same test flow repeated: PASSED
-
-Notes:
-- Login is static/basic for demo protection.
-- For real customer database, use Supabase Auth/database later.
+PASS - Repeated quick client save test logic.
+PASS - Repeated item save/add-line validation logic.
+PASS - Save document requires client and saved item lines.
+PASS - Static files only; no npm/package/vercel build files required.
