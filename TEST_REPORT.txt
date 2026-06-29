@@ -1,17 +1,28 @@
-GM Security Pro Final v2 - Test Report
+GM Security Systems Pro Final v3 — Test Report
+
+Syntax check:
+PASS - node --check app.js
 
 Round 1:
-PASS - JavaScript syntax check.
-PASS - Default data migration supports old clients/items and new fields.
-PASS - Client form includes account number, business/company name, first/last name, contact info, location, currency.
-PASS - Quick client inside quotation/invoice saves to Clients and auto-selects.
-PASS - Item lines include part/item number, description, qty, unit price, total.
-PASS - Custom item cannot be used to save document until saved to Inventory.
-PASS - Add Line is blocked until current line is valid and saved.
-PASS - Existing inventory item autofills price and is marked saved.
+PASS - default login exists: admin / gm1234
+PASS - default exchange rate exists: 89,500 LBP/USD
+PASS - quick client saves with account/currency/exchange rate
+PASS - inventory item saves with part number and description
+PASS - inventory search by part number
+PASS - quotation search by client
+PASS - quotation search by item description
+PASS - quotation search by part number
+PASS - quotation search by quotation number
+PASS - invoice partial status logic
+PASS - invoice search by item
+PASS - receipt updates invoice to paid
+PASS - LBP equivalent calculation
+PASS - A4 quotation/invoice/receipt/statement template strings present
 
 Round 2:
-PASS - Repeated quick client save test logic.
-PASS - Repeated item save/add-line validation logic.
-PASS - Save document requires client and saved item lines.
-PASS - Static files only; no npm/package/vercel build files required.
+PASS - repeated all tests successfully
+
+Notes:
+- This is a static app using browser localStorage.
+- Do not enter real customer database until you are comfortable with the security model.
+- Static login is suitable for demo/basic protection only. For real production data, add server-backed auth later.
