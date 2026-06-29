@@ -1,27 +1,15 @@
-# GM Security Systems — Static Vercel App
+# GM Security Systems - Static Business Manager
 
-This version is intentionally **static** and dependency-free.
+Static HTML/CSS/JS app ready for Vercel static hosting. No npm, no build, no install.
 
-Upload these files to GitHub:
+## Files to upload
 - index.html
 - styles.css
 - app.js
 - README.md
 
-Do **not** upload package.json, package-lock.json, or vercel.json.
+## Demo login
+- Username: admin
+- Password: gm1234
 
-Vercel settings:
-- Framework: Other / Static
-- Build Command: leave empty
-- Install Command: leave empty
-- Output Directory: leave empty or `.`
-
-Features:
-- Dashboard
-- Clients, suppliers, quotations, invoices, visits, inventory, reports
-- Add / edit / delete
-- Convert quotation to invoice
-- Print / PDF from browser
-- Copy WhatsApp text
-- LocalStorage save
-- Export / import JSON backup
+Change credentials in Settings after opening the app.

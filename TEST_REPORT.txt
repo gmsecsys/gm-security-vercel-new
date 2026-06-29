@@ -1,0 +1,35 @@
+GM Security Systems - Test Report
+
+Version: Static Pro Final
+Date: 2026-06-29
+
+Static deployment checks:
+- No npm required
+- No package.json
+- No package-lock.json
+- No vercel.json
+- No build command
+- No install command
+
+Syntax checks:
+- JavaScript syntax check: PASSED
+
+Logic tests repeated twice:
+Round 1:
+- Default login exists: PASSED
+- Quick client save from document flow: PASSED
+- Quick item/service save from document flow: PASSED
+- Quotation search by client: PASSED
+- Quotation search by item: PASSED
+- Quotation search by quote number: PASSED
+- Convert-style invoice logic: PASSED
+- Invoice search by item: PASSED
+- Receipt payment updates invoice status: PASSED
+- Outstanding balance calculation: PASSED
+
+Round 2:
+- Same test flow repeated: PASSED
+
+Notes:
+- Login is static/basic for demo protection.
+- For real customer database, use Supabase Auth/database later.

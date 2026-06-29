@@ -2,13 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#171717" />
   <title>GM Security Systems</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="app"></div>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="brand-lock"><div class="brand-icon">🛡</div><div><h1>GM Security</h1><p>Systems Business Manager</p></div></div>
+      <div class="login-note">Protected demo access</div>
+      <label>Username</label>
+      <input id="loginUser" autocomplete="username" placeholder="admin" />
+      <label>Password</label>
+      <input id="loginPass" type="password" autocomplete="current-password" placeholder="Password" />
+      <button id="loginBtn" class="btn primary full">Login</button>
+      <div id="loginError" class="login-error"></div>
+      <div class="small muted">Default demo: <b>admin</b> / <b>gm1234</b>. Change it later from Settings.</div>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="logo-wrap">
+        <div class="logo-icon">🛡</div>
+        <div><div class="logo-title">GM Security</div><div class="logo-sub">Systems</div></div>
+      </div>
+      <nav id="nav"></nav>
+      <div class="user-box">
+        <div>Georges M.</div><small>Admin · Online</small>
+        <button id="logoutBtn" class="btn ghost full mini">Logout</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div><h2 id="pageTitle"></h2><p id="pageSub"></p></div>
+        <div class="top-actions"><button class="btn ghost" onclick="App.exportBackup()">Export Backup</button><button class="btn ghost" onclick="App.openSettings()">⚙</button></div>
+      </header>
+      <section id="view"></section>
+    </main>
+    <nav id="bottomNav" class="bottom-nav"></nav>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toast"></div>
   <script src="app.js"></script>
 </body>
 </html>
