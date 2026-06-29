@@ -1,7 +1,25 @@
-# GM Security Pro Final v6
+# GM Security Pro Final v7
 
-Clean static version. Upload only these files to GitHub/Vercel:
+Static HTML/CSS/JS business app for GM Security Systems.
 
+## Login
+- Username: `admin`
+- Password: `gm1234`
+
+## v7 updates
+- Grand totals remain USD only on quotation, invoice, receipt, and statement print templates.
+- Exchange rate remains visible as reference only: `1 USD = 89,500 LBP`.
+- LBP equivalent lines removed from customer-facing print/PDF templates.
+- Notes section only appears if notes/terms were actually entered.
+- Discount supports fixed amount or percentage.
+- Suppliers now support Add/Edit/Delete.
+- Visits now support Add/Edit/Delete.
+- Receipt Edit/Delete remains active and recalculates invoice balances.
+- Item flow remains Item # first, Description second, no auto IT numbers, amount recalculates immediately when qty/price changes.
+- Print opens a clean A4 document without app sidebar/dashboard background.
+
+## Upload to Vercel
+Upload only:
 - index.html
 - styles.css
 - app.js
@@ -9,22 +27,3 @@ Clean static version. Upload only these files to GitHub/Vercel:
 - TEST_REPORT.txt
 
 Do not upload package.json, package-lock.json, vercel.json, src, public, or node_modules.
-
-## Login
-Username: admin
-Password: gm1234
-
-## v6 changes
-- Added Delete button for Clients.
-- Delete Client uses a confirmation message.
-- If the client has existing quotations, invoices, or receipts, deleting removes only the client from the Clients list and keeps historical documents.
-- Receipts still support View/Print, Edit, and Delete.
-- Receipt delete/edit recalculates linked invoice paid/balance/status.
-- Print/PDF uses a separate clean A4 print document and should not print dashboard/sidebar/background UI.
-- Item flow remains: Item # first, Description second, quantity/price recalc amount immediately, Save Item only for new inventory items.
-
-## Vercel settings
-Framework: Other
-Install Command: empty
-Build Command: empty
-Output Directory: .

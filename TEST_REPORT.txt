@@ -1,25 +1,29 @@
-GM Security Pro Final v6 - Test Report
+GM Security Pro Final v7 - Test Report
 
 Round 1:
-PASS - JavaScript syntax check.
-PASS - Clients page shows Statement, Edit, Delete.
-PASS - Delete Client removes client from client list after confirmation.
-PASS - Existing documents remain for history when client is deleted.
-PASS - Receipt View/Edit/Delete buttons exist.
-PASS - Receipt delete triggers invoice payment recalculation logic.
-PASS - Item # field remains first, description second.
-PASS - Quantity/price line total recalculates without Save Item.
-PASS - Save Item is only required for new inventory items.
-PASS - Print/PDF uses standalone A4 document through window.open.
+PASS - JavaScript syntax check with node --check app.js
+PASS - Discount fixed amount calculation
+PASS - Discount percentage calculation
+PASS - Invoice balance/status recalculation after discount
+PASS - Print templates show Grand Total USD only
+PASS - Print templates show Exchange Rate reference only
+PASS - LBP equivalent lines removed from quotation/invoice/receipt/statement templates
+PASS - Notes section is conditional and does not show when empty
+PASS - Supplier Add/Edit/Delete functions present
+PASS - Visit Add/Edit/Delete functions present
+PASS - Receipt Edit/Delete logic remains active
+PASS - Item # / Description / Qty / Price flow remains active
+PASS - Quantity and price update line amount immediately
 
 Round 2:
-PASS - JavaScript syntax check repeated.
-PASS - Client delete action exists in generated client table.
-PASS - Client delete confirmation protects existing history.
-PASS - Receipt edit/delete code paths remain intact.
-PASS - A4 templates remain for quotation, invoice, receipt, statement.
-PASS - Exchange rate display remains on print templates.
-PASS - Inventory Item # search/display logic remains intact.
+PASS - Repeated syntax check
+PASS - Repeated discount percentage calculation
+PASS - Repeated print template inspection
+PASS - Repeated supplier delete action availability
+PASS - Repeated visit edit/delete action availability
+PASS - Repeated receipt edit/delete action availability
+PASS - Repeated item auto amount calculation logic
+PASS - Repeated no-LBP-equivalent template check
 
 Notes:
-- Static app protection is basic login only. For real sensitive customer data, use Supabase Auth/database later.
+This is still a static localStorage-based version. Use for testing before real database migration.
