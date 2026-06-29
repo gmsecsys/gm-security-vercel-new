@@ -89,7 +89,7 @@ const App = {
     if(type==='invoices') el.innerHTML=this.table(['Invoice #','Client','Due','Total','Paid','Balance','Status',''],rows.map(x=>{x=Logic.normalizeInvoice(x); return [x.id,x.client,x.due,Logic.money(x.total),Logic.money(x.paid),Logic.money(x.balance),`<span class="badge ${x.status}">${x.status}</span>`,this.rowActions('invoice',x.id)+`<button class="btn green mini" onclick="App.openReceiptForm('${x.id}')">Receipt</button>`]}));
     if(type==='receipts') el.innerHTML=this.table(['Receipt #','Client','Invoice','Date','Method','Amount',''],rows.map(x=>[x.id,x.client,x.invoiceId||'Manual',x.date,x.method,Logic.money(x.amount),`<div class="row-actions"><button class="btn ghost mini" onclick="App.viewDoc('receipt','${x.id}')">View/Print</button><button class="btn ghost mini" onclick="App.edit('receipt','${x.id}')">Edit</button><button class="btn danger mini" onclick="App.del('receipt','${x.id}')">Delete</button></div>`]));
     if(type==='clients') el.innerHTML=this.table(['Client','Phone','Location','Balance','Status',''],rows.map(c=>[c.name,c.phone,c.location,Logic.money(this.clientBalance(c.name)),`<span class="badge ${c.status}">${c.status}</span>`,`<div class="row-actions"><button class="btn ghost mini" onclick="App.statementById('${c.id}')">Statement</button><button class="btn ghost mini" onclick="App.openClientForm('${c.id}')">Edit</button><button class="btn danger mini" onclick="App.del('client','${c.id}')">Delete</button></div>`]));
-    if(type==='inventory') el.innerHTML=this.table(['Item #','Description','Category','Stock','Cost','Sell','Status',''],rows.map(i=>[i.partNo||'',i.description||i.name,i.category,`${i.qty} ${i.unit}`,Logic.money(i.cost),Logic.money(i.price),`<span class="badge ${Number(i.qty)<=Number(i.min)?'Low':'OK'}">${Number(i.qty)<=Number(i.min)?'Low':'OK'}</span>`,`<button class="btn ghost mini" onclick="App.openItemForm('${i.id}')">Edit</button>`]));
+    if(type==='inventory') el.innerHTML=this.table(['Item #','Description','Category','Stock','Cost','Sell','Status',''],rows.map(i=>[i.partNo||'',i.description||i.name,i.category,`${i.qty} ${i.unit}`,Logic.money(i.cost),Logic.money(i.price),`<span class="badge ${Number(i.qty)<=Number(i.min)?'Low':'OK'}">${Number(i.qty)<=Number(i.min)?'Low':'OK'}</span>`,`<button class="btn ghost mini" onclick="App.openItemForm('${i.id}')">Edit</button><button class="btn danger mini" onclick="App.del('inventory','${i.id}')">Delete</button>`]));
     if(type==='suppliers') el.innerHTML=this.table(['Supplier','Contact','Phone','Category','Balance','Status',''],rows.map(s=>[s.name,s.contact,s.phone,s.category,Logic.money(s.balance),`<span class="badge ${s.status}">${s.status}</span>`,`<div class="row-actions"><button class="btn ghost mini" onclick="App.openSupplierForm('${s.id}')">Edit</button><button class="btn danger mini" onclick="App.del('supplier','${s.id}')">Delete</button></div>`]));
     if(type==='visits') el.innerHTML=this.table(['Client','Type','Date','Time','Status','Notes',''],rows.map(v=>[v.client,v.type,v.date,v.time,`<span class="badge ${v.status}">${v.status}</span>`,v.notes||'',`<div class="row-actions"><button class="btn ghost mini" onclick="App.openVisitForm('${v.id}')">Edit</button><button class="btn danger mini" onclick="App.del('visit','${v.id}')">Delete</button></div>`]));
   },
@@ -207,7 +207,47 @@ const App = {
     const rows=(d.items||[]).map(i=>`<tr><td class="part-col">${i.partNo||''}</td><td>${i.description||''}</td><td class="num">${i.qty||''}</td><td class="num">${Logic.money(i.price||0)}</td><td class="num">${Logic.money(Number(i.qty||0)*Number(i.price||0))}</td></tr>`).join('');
     const receiptDetails=isR?`<div class="receipt-box"><b>Payment Method:</b> ${d.method||''}<br><b>Amount Paid:</b> ${Logic.money(d.amount||0)}<br><b>Remaining Balance:</b> ${Logic.money(d.balance||0)}</div>`:'';
     return `<div class="a4-doc"><div class="doc-top"><div></div><div class="doc-title-wrap"><div class="doc-title">${title}</div>${this.companyBlock()}</div></div><div class="doc-info-grid">${this.clientBlock(d.client)}<div class="doc-meta"><p><b>${numberLabel}:</b> ${d.id}</p><p><b>${dateLabel}:</b> ${d.date||''}</p><p><b>${dueLabel}:</b> ${dueValue}</p><p><b>Currency:</b> ${d.currency||'USD'}</p><p><b>Exchange Rate:</b> 1 USD = ${Number(rate).toLocaleString()} LBP</p><p class="grand"><b>Grand Total (USD):</b> ${Logic.money(total)}</p>${isI?`<p><b>Paid:</b> ${Logic.money(paid)}</p><p><b>Balance Due:</b> ${Logic.money(balance)}</p>`:''}</div></div>${rows?`<table class="doc-table"><thead><tr><th>Item #</th><th>Description</th><th>Quantity</th><th>Price</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>`:receiptDetails}<div class="doc-summary"><div></div><div><p><b>Grand Total (USD):</b> ${Logic.money(total)}</p>${isR?`<p><b>Amount Paid:</b> ${Logic.money(d.amount||0)}</p><p><b>Remaining Balance:</b> ${Logic.money(d.balance||0)}</p>`:''}</div></div>${(d.notes||d.terms)?`<div class="doc-notes"><b>Notes:</b><br>${d.notes||d.terms}</div>`:''}<div class="doc-notes"><b>Terms & Conditions:</b><br>${isQ?'This quotation is valid until the date mentioned above. ':''}Prices are in USD unless otherwise stated. Exchange rate is shown for LBP reference.</div><div class="doc-footer">info@gmsecuritysrv.com</div></div>` },
-  copyText(type,id){ const list=type==='quote'?'quotes':type==='invoice'?'invoices':'receipts'; const d=this.data[list].find(x=>x.id===id); const txt=`GM Security Systems\n${type.toUpperCase()}: ${d.id}\nClient: ${d.client}\nTotal: ${Logic.money(d.total||d.amount)}\nThank you.`; navigator.clipboard?.writeText(txt); this.toast('Copied WhatsApp text'); },
+  waItemLines(items){
+    return (items||[]).map((i,idx)=>{
+      const itemNo = i.partNo ? `${i.partNo} - ` : '';
+      const desc = i.description || i.name || 'Item';
+      const qty = Number(i.qty || 0);
+      const price = Number(i.price || 0);
+      const amount = qty * price;
+      return `${idx+1}. ${itemNo}${desc}\n   Qty: ${qty} × ${Logic.money(price)} = ${Logic.money(amount)}`;
+    }).join('\n');
+  },
+  buildWhatsAppText(type,d){
+    const company = `GM Security Systems`;
+    const line = `------------------------------`;
+    const rate = Number(this.rateOf ? this.rateOf(d) : (this.data.settings.exchangeRate || 89500)).toLocaleString();
+    if(type==='quote'){
+      const subtotal = Logic.calcItems(d.items||[]);
+      const discount = Logic.discountAmount(subtotal, d.discountType || 'amount', d.discountValue ?? d.discount ?? 0);
+      const total = Number(d.total || Logic.calcDocTotal(d));
+      const notes = d.notes ? `\nNotes:\n${d.notes}` : '';
+      const terms = d.terms ? `\nTerms:\n${d.terms}` : '';
+      return `${company}\nQUOTATION ${d.id}\n${line}\nClient: ${d.client || '-'}\nDate: ${d.date || '-'}\nValid Until: ${d.validUntil || '-'}\nStatus: ${d.status || 'Draft'}\nCurrency: USD\nExchange Rate: 1 USD = ${rate} LBP\n\nItems:\n${this.waItemLines(d.items)}\n\nSubtotal: ${Logic.money(subtotal)}${discount>0?`\nDiscount: -${Logic.money(discount)}`:''}\nGrand Total: ${Logic.money(total)}${notes}${terms}\n\nThank you,\nGM Security Systems`;
+    }
+    if(type==='invoice'){
+      const inv = Logic.normalizeInvoice({...d});
+      const subtotal = Logic.calcItems(inv.items||[]);
+      const discount = Logic.discountAmount(subtotal, inv.discountType || 'amount', inv.discountValue ?? inv.discount ?? 0);
+      const notes = inv.notes ? `\nNotes:\n${inv.notes}` : '';
+      return `${company}\nINVOICE ${inv.id}\n${line}\nClient: ${inv.client || '-'}\nDate: ${inv.date || '-'}\nDue Date: ${inv.due || '-'}\nStatus: ${inv.status}\nCurrency: USD\nExchange Rate: 1 USD = ${rate} LBP\n\nItems:\n${this.waItemLines(inv.items)}\n\nSubtotal: ${Logic.money(subtotal)}${discount>0?`\nDiscount: -${Logic.money(discount)}`:''}\nGrand Total: ${Logic.money(inv.total)}\nPaid: ${Logic.money(inv.paid || 0)}\nBalance Due: ${Logic.money(inv.balance || 0)}${notes}\n\nThank you,\nGM Security Systems`;
+    }
+    const receiptNotes = d.notes ? `\nNotes:\n${d.notes}` : '';
+    return `${company}\nRECEIPT ${d.id}\n${line}\nClient: ${d.client || '-'}\nDate: ${d.date || '-'}\nInvoice Ref: ${d.invoiceId || 'Manual'}\nPayment Method: ${d.method || '-'}\nCurrency: USD\nExchange Rate: 1 USD = ${rate} LBP\n\nAmount Paid: ${Logic.money(d.amount || 0)}\nRemaining Balance: ${Logic.money(d.balance || 0)}${receiptNotes}\n\nThank you,\nGM Security Systems`;
+  },
+  copyToClipboard(txt){
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(txt).catch(()=>this.copyFallback(txt));
+    } else this.copyFallback(txt);
+  },
+  copyFallback(txt){
+    const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); try{document.execCommand('copy')}catch(e){} document.body.removeChild(ta);
+  },
+  copyText(type,id){ const list=type==='quote'?'quotes':type==='invoice'?'invoices':'receipts'; const d=this.data[list].find(x=>x.id===id); if(!d)return; const txt=this.buildWhatsAppText(type,d); this.copyToClipboard(txt); this.toast('Detailed WhatsApp text copied'); },
   statementById(id){ const c=this.data.clients.find(x=>x.id===id); if(!c){this.toast('Client not found');return;} this.statement(this.clientDisplay(c)); },
   statement(client){
     const c=this.getClientByName(client)||{}; const rate=Number(c.exchangeRate||this.data.settings.exchangeRate||89500);
@@ -218,9 +258,14 @@ const App = {
     this.modal('Statement of Account',`<div class="print-area"><div class="a4-doc"><div class="doc-top"><div></div><div class="doc-title-wrap"><div class="doc-title">STATEMENT</div>${this.companyBlock()}</div></div><div class="doc-info-grid">${this.clientBlock(client)}<div class="doc-meta"><p><b>Statement Date:</b> ${Logic.today()}</p><p><b>Currency:</b> ${c.currency||'USD'}</p><p><b>Exchange Rate:</b> 1 USD = ${rate.toLocaleString()} LBP</p><p class="grand"><b>Balance Due:</b> ${Logic.money(bal)}</p></div></div><div class="doc-summary"><div></div><div><p><b>Total Invoiced:</b> ${Logic.money(total)}</p><p><b>Total Paid:</b> ${Logic.money(paid)}</p><p><b>Balance Due:</b> ${Logic.money(bal)}</p></div></div><h3>Invoices</h3><table class="doc-table"><thead><tr><th>Invoice</th><th>Date</th><th>Due</th><th>Status</th><th>Total</th><th>Balance</th></tr></thead><tbody>${invRows}</tbody></table><h3>Receipts</h3><table class="doc-table"><thead><tr><th>Receipt</th><th>Date</th><th>Invoice</th><th>Method</th><th>Paid USD</th></tr></thead><tbody>${recRows}</tbody></table><div class="doc-footer">info@gmsecuritysrv.com</div></div></div><br><button class="btn primary" onclick="App.printRawHtml('Statement', document.querySelector('.modal-body .print-area').innerHTML)">Print Statement</button>`); },
   edit(type,id){ if(type==='quote')this.openDocForm('quote',id); if(type==='invoice')this.openDocForm('invoice',id); if(type==='receipt')this.openReceiptForm('',id); },
   del(type,id){
-    const map={quote:'quotes',invoice:'invoices',receipt:'receipts',client:'clients',supplier:'suppliers',visit:'visits'};
+    const map={quote:'quotes',invoice:'invoices',receipt:'receipts',client:'clients',supplier:'suppliers',visit:'visits',inventory:'inventory'};
     if(!map[type])return;
-    if(type==='client'){
+    if(type==='inventory'){
+      const it=this.data.inventory.find(x=>x.id===id); if(!it)return;
+      const used=this.data.quotes.some(q=>(q.items||[]).some(li=>li.partNo===it.partNo))||this.data.invoices.some(inv=>(inv.items||[]).some(li=>li.partNo===it.partNo));
+      const msg=used ? `Delete item "${it.partNo||it.description}" from Inventory? Existing invoices/quotations will remain for history.` : `Delete item "${it.partNo||it.description}"?`;
+      if(!confirm(msg))return;
+    } else if(type==='client'){
       const c=this.data.clients.find(x=>x.id===id); if(!c)return;
       const name=this.clientDisplay(c);
       const hasDocs=this.data.quotes.some(q=>q.client===name)||this.data.invoices.some(i=>i.client===name)||this.data.receipts.some(r=>r.client===name);
@@ -230,7 +275,7 @@ const App = {
     this.data[map[type]]=this.data[map[type]].filter(x=>x.id!==id);
     if(type==='receipt')this.recalcInvoicePayments();
     this.save(); this.render();
-    this.toast(type==='receipt'?'Receipt deleted and invoice balance updated':type==='client'?'Client deleted':'Deleted');
+    this.toast(type==='receipt'?'Receipt deleted and invoice balance updated':type==='client'?'Client deleted':type==='inventory'?'Inventory item deleted':'Deleted');
   },
   openSettings(){this.go('settings')},
   exportBackup(){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(this.data,null,2)],{type:'application/json'})); a.download='gm-security-backup-'+Logic.today()+'.json'; a.click(); },
@@ -239,4 +284,4 @@ const App = {
   resetDemo(){ if(confirm('Reset all demo data?')){localStorage.removeItem('gm_data_v5');this.load();this.render();} }
 };
 if(typeof document!=='undefined') document.addEventListener('DOMContentLoaded',()=>App.init());
-if(typeof module!=='undefined') module.exports={Logic};
+if(typeof module!=='undefined') module.exports={Logic,App};
