@@ -1,32 +1,34 @@
-# GM Security Systems - Pro Final v12 Inventory Focus
+# GM Security Pro Final v14
 
-Static HTML/CSS/JS version. No npm, no build, no package files.
+Mobile Safari action fix.
+
+## Main fix
+- iPhone Safari compatibility fix for New/Edit/Delete buttons.
+- Static app now explicitly maps DOM ids to window so Safari can run all action buttons reliably.
+- Added global window.App and window.Logic for inline action handlers.
+- Fixed modal/render/drawLines DOM references so forms open and work on iPhone Safari.
+
+## Existing features preserved
+- Login
+- Invoices / quotations / receipts
+- Detailed WhatsApp copy templates
+- A4 print templates
+- Inventory stock movements
+- Visits add/edit/delete
+- Clients / suppliers / inventory delete
+- Beirut timezone dates
+- Invoice/quotation date rules
 
 ## Login
 Username: admin
 Password: gm1234
 
-## v12 Changes
-- Inventory upgraded with tabs: Items, Movements, Low Stock.
-- Added Stock In, Stock Out, and Adjustment flows.
-- Added movement history with date, item, qty, from/to stock, supplier/client, reference, and notes.
-- Inventory item fields improved: Item #, Description, Brand, Category, Supplier, Location/Shelf, Unit, Qty, Min Qty, Cost, Selling Price.
-- Low stock page shows items where Qty <= Min Qty with quick Stock In.
-- Invoice form has optional “Deduct stock from Inventory now” checkbox.
-- Invoice stock deduction creates movement records and skips service items.
-- Existing print, WhatsApp, login, receipt, date, and quotation/invoice logic preserved.
-
-## Upload only
+## Upload to GitHub
+Upload these files only:
 - index.html
 - styles.css
 - app.js
 - README.md
 - TEST_REPORT.txt
 
-## v13 Mobile Safari Fix
-- Fullscreen mobile modals for invoices, quotations, visits, clients, suppliers, inventory, receipts.
-- Bigger touch buttons on iPhone.
-- Inputs use 16px font to prevent Safari zoom/control issues.
-- Modal body scrolls correctly with bottom safe-area padding.
-- Item lines become one-column on mobile so edit/save is reachable.
-- Table action buttons become mobile-friendly grid.
+Vercel: static project, no install command, no build command.

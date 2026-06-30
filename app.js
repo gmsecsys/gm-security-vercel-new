@@ -1,4 +1,4 @@
-/* GM Security Systems - Static Pro Demo v12 Inventory Focus */
+/* GM Security Systems - Static Pro Demo v14 iPhone Safari Action Fix */
 const Logic = (() => {
   const money = n => '$' + Number(n || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   const lbp = n => 'LBP ' + Math.round(Number(n || 0)).toLocaleString();
@@ -58,6 +58,18 @@ const Logic = (() => {
   return {money,lbp,today,dateAddDays,maxDate,docSeq,uid,docNo,calcItems,discountAmount,calcDocTotal,deepSearch,defaultData,normalizeInvoice};
 })();
 
+
+// Safari/iPhone compatibility: iOS Safari does not reliably expose elements with id="..." as global variables.
+// Older parts of this static app use ids like docClient.value, itemsBox.innerHTML, modalRoot.innerHTML.
+// This function explicitly maps all current DOM ids to window so all buttons/actions work on Safari.
+function syncDomGlobals(){
+  if(typeof document==='undefined' || typeof window==='undefined') return;
+  document.querySelectorAll('[id]').forEach(el=>{
+    if(!el.id) return;
+    try{ window[el.id]=el; }catch(e){}
+  });
+}
+
 const App = {
   data:null,page:'dashboard',editing:null,sessionTimer:null,lastActivity:Date.now(),
   pages:{dashboard:['Dashboard','Business overview and quick actions'],quotations:['Quotations','Create, search, print and convert quotes'],invoices:['Invoices','Billing, receipts and payment tracking'],receipts:['Receipts','Payments and reprints'],clients:['Clients','Client accounts and statements'],suppliers:['Suppliers','Vendors and balances'],inventory:['Inventory','Items, services and stock'],visits:['Visits','Scheduling and field work'],reports:['Reports','Profit, loss and balances'],settings:['Settings','Security and backup']},
@@ -80,10 +92,10 @@ const App = {
   unlock(){ loginScreen.classList.add('hidden'); app.classList.remove('hidden'); this.lastActivity=Date.now(); this.render(); },
   lock(manual=false){ localStorage.removeItem('gm_session'); app.classList.add('hidden'); loginScreen.classList.remove('hidden'); if(manual) this.toast('Logged out'); },
   checkAutoLock(){ if(localStorage.getItem('gm_session')!=='1')return; const min=Number(this.data.settings.autoLock||30); if(Date.now()-this.lastActivity > min*60000) this.lock(true); },
-  toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.style.display='block'; clearTimeout(this._toast); this._toast=setTimeout(()=>el.style.display='none',2600); },
-  renderNav(){ const build=(target,bottom=false)=>{target.innerHTML=this.nav.map(n=>n.length===1&&!bottom?`<div class="nav-section">${n[0]}</div>`:n.length===1?'':`<div class="nav-item ${this.page===n[0]?'active':''}" onclick="App.go('${n[0]}')"><span>${n[1]}</span><span>${n[2]}</span></div>`).join('')}; build(nav); build(bottomNav,true); },
+  toast(t){ const el=document.getElementById('toast'); if(!el){alert(t);return;} el.textContent=t; el.style.display='block'; clearTimeout(this._toast); this._toast=setTimeout(()=>el.style.display='none',2600); },
+  renderNav(){ syncDomGlobals(); const build=(target,bottom=false)=>{target.innerHTML=this.nav.map(n=>n.length===1&&!bottom?`<div class="nav-section">${n[0]}</div>`:n.length===1?'':`<div class="nav-item ${this.page===n[0]?'active':''}" onclick="App.go('${n[0]}')"><span>${n[1]}</span><span>${n[2]}</span></div>`).join('')}; build(document.getElementById('nav')); build(document.getElementById('bottomNav'),true); syncDomGlobals(); },
   go(p){ this.page=p; this.renderNav(); this.render(); },
-  render(){ const [t,s]=this.pages[this.page]; pageTitle.textContent=t; pageSub.textContent=s; const map={dashboard:this.dashboard,quotations:this.quotations,invoices:this.invoices,receipts:this.receipts,clients:this.clients,suppliers:this.suppliers,inventory:this.inventory,visits:this.visits,reports:this.reports,settings:this.settings}; view.innerHTML=map[this.page].call(this); },
+  render(){ syncDomGlobals(); const [t,s]=this.pages[this.page]; document.getElementById('pageTitle').textContent=t; document.getElementById('pageSub').textContent=s; const map={dashboard:this.dashboard,quotations:this.quotations,invoices:this.invoices,receipts:this.receipts,clients:this.clients,suppliers:this.suppliers,inventory:this.inventory,visits:this.visits,reports:this.reports,settings:this.settings}; document.getElementById('view').innerHTML=map[this.page].call(this); syncDomGlobals(); },
   rowActions(type,id){ return `<div class="row-actions"><button class="btn ghost mini" onclick="App.viewDoc('${type}','${id}')">View</button><button class="btn ghost mini" onclick="App.edit('${type}','${id}')">Edit</button><button class="btn danger mini" onclick="App.del('${type}','${id}')">Delete</button></div>` },
   dashboard(){ const d=this.data, inv=d.invoices.map(Logic.normalizeInvoice); const revenue=inv.reduce((a,i)=>a+Number(i.paid||0),0), invoiced=inv.reduce((a,i)=>a+Number(i.total||0),0), outstanding=inv.reduce((a,i)=>a+Number(i.balance||0),0); const estCost=d.inventory.reduce((a,i)=>a+Number(i.cost||0)*Math.min(Number(i.qty||0),1),0); const profit=revenue-estCost; const lastQ=[...d.quotes].slice(-5).reverse(), lastI=[...inv].slice(-5).reverse(); const byClient={}; inv.forEach(i=>byClient[i.client]=(byClient[i.client]||0)+Number(i.total||0)); const top=Object.entries(byClient).sort((a,b)=>b[1]-a[1])[0];
     return `<div class="quick-grid"><button class="btn primary" onclick="App.openDocForm('invoice')">+ New Invoice</button><button class="btn primary" onclick="App.openDocForm('quote')">+ New Quotation</button><button class="btn" onclick="App.openClientForm()">+ New Client</button><button class="btn green" onclick="App.openReceiptForm()">+ New Receipt</button></div>
@@ -129,8 +141,8 @@ const App = {
   },
   table(head,rows){ return `<div class="card table-wrap"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` },
   clientBalance(name){ return this.data.invoices.map(Logic.normalizeInvoice).filter(i=>i.client===name).reduce((a,i)=>a+Number(i.balance||0),0) },
-  modal(title,body){ modalRoot.innerHTML=`<div class="modal-back" onclick="App.closeModal(event)"><div class="modal" onclick="event.stopPropagation()"><div class="modal-head"><h3>${title}</h3><button class="btn ghost" onclick="App.closeModal()">✕</button></div><div class="modal-body">${body}</div></div></div>` },
-  closeModal(e){ if(e&&e.target.className!=='modal-back')return; modalRoot.innerHTML=''; },
+  modal(title,body){ syncDomGlobals(); document.getElementById('modalRoot').innerHTML=`<div class="modal-back" onclick="App.closeModal(event)"><div class="modal" onclick="event.stopPropagation()"><div class="modal-head"><h3>${title}</h3><button class="btn ghost" onclick="App.closeModal()">✕</button></div><div class="modal-body">${body}</div></div></div>`; syncDomGlobals(); },
+  closeModal(e){ if(e&&e.target.className!=='modal-back')return; syncDomGlobals(); document.getElementById('modalRoot').innerHTML=''; syncDomGlobals(); },
   clientDisplay(c){ return c.businessName || c.companyName || c.name || [c.firstName,c.lastName].filter(Boolean).join(' ') || c.phone || c.id; },
   clientOptions(sel=''){return this.data.clients.map(c=>{const n=this.clientDisplay(c); return `<option value="${n}" ${sel===n?'selected':''}>${n}${c.location?' · '+c.location:''}</option>`}).join('')},
   itemOptions(){return this.data.inventory.map(i=>`<option value="${i.partNo||''}" data-price="${i.price}">${i.partNo||''} — ${i.description||i.name}</option>`).join('')},
@@ -172,14 +184,14 @@ const App = {
     this.toggleQuickClient(false); this.toast('Client saved to Clients');
   },
   drawLines(){
-    itemsBox.innerHTML=this.formItems.map((it,i)=>`<div class="item-line pro-line ${it.saved?'saved-line':''}">
+    syncDomGlobals(); const _itemsBox=document.getElementById('itemsBox'); if(!_itemsBox)return; _itemsBox.innerHTML=this.formItems.map((it,i)=>`<div class="item-line pro-line ${it.saved?'saved-line':''}">
       <div class="field"><label>Item #</label><input list="itemList" value="${it.partNo||''}" oninput="App.formItems[${i}].partNo=this.value;App.autofillByItemNo(${i},this.value)" placeholder="ex: DS-7616NXI-K2"></div>
       <div class="field desc-field"><label>Description</label><input value="${it.description||''}" oninput="App.formItems[${i}].description=this.value;App.markUnsaved(${i})" placeholder="Type/edit description"></div>
       <div class="field"><label>Qty</label><input type="number" min="1" value="${it.qty||1}" oninput="App.formItems[${i}].qty=this.value;App.updateLineAmount(${i});App.recalcForm()"></div>
       <div class="field"><label>Unit Price $</label><input type="number" min="0" value="${it.price||0}" oninput="App.formItems[${i}].price=this.value;App.updateLineAmount(${i});App.recalcForm()"></div>
       <div class="field"><label>Amount</label><input id="lineAmount${i}" disabled value="${Logic.money(Number(it.qty||0)*Number(it.price||0))}"></div>
       <div class="line-buttons"><button class="btn green mini" onclick="App.saveLineItem(${i})">Save Item</button><button class="btn danger mini" onclick="App.formItems.splice(${i},1);App.drawLines()">✕</button><div class="small ${it.saved?'ok-text':'warn-text'}">${it.saved?'Saved':'New item - save first'}</div></div>
-    </div>`).join('')+`<datalist id="itemList">${this.itemOptions()}</datalist>`; this.recalcForm();
+    </div>`).join('')+`<datalist id="itemList">${this.itemOptions()}</datalist>`; syncDomGlobals(); this.recalcForm();
   },
   markUnsaved(i){ const it=this.formItems[i]; const item=this.data.inventory.find(x=>String(x.partNo||'').toLowerCase()===String(it.partNo||'').toLowerCase() && String(it.partNo||'').trim()); it.saved=!!item; },
   autofillByItemNo(i,val){ const item=this.data.inventory.find(x=>String(x.partNo||'').toLowerCase()===String(val||'').toLowerCase()); if(item){this.formItems[i].partNo=item.partNo||''; this.formItems[i].description=item.description||item.name; this.formItems[i].price=item.price; this.formItems[i].saved=true; this.drawLines()} else {this.formItems[i].saved=false; this.updateLineAmount(i); this.recalcForm()} },
@@ -328,5 +340,6 @@ const App = {
   printRawHtml(title,html){ const w=window.open('','_blank'); if(!w){this.toast('Allow popups to print');return;} w.document.write(`<!doctype html><html><head><title>${title}</title><style>${this.printCss()}</style></head><body>${html}<script>window.onload=()=>{setTimeout(()=>window.print(),250)}<\/script></body></html>`); w.document.close(); },
   resetDemo(){ if(confirm('Reset all demo data?')){localStorage.removeItem('gm_data_v5');this.load();this.render();} }
 };
-if(typeof document!=='undefined') document.addEventListener('DOMContentLoaded',()=>App.init());
+if(typeof window!=='undefined'){ window.Logic=Logic; window.App=App; window.syncDomGlobals=syncDomGlobals; }
+if(typeof document!=='undefined') document.addEventListener('DOMContentLoaded',()=>{ syncDomGlobals(); App.init(); syncDomGlobals(); });
 if(typeof module!=='undefined') module.exports={Logic,App};

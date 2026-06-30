@@ -1,20 +1,22 @@
-GM Security Pro Final v13 - Mobile Safari Fix Test
+GM Security Pro Final v14 - Test Report
 
 Round 1:
-PASS - CSS syntax appended for mobile Safari.
-PASS - Modal fullscreen on mobile.
-PASS - Modal body scrolls independently with safe bottom padding.
-PASS - Inputs/selects/textareas set to 16px to prevent iPhone Safari zoom issue.
-PASS - Action buttons enlarged for touch.
-PASS - Item line form becomes one-column on mobile.
-PASS - Table action buttons become touch-friendly mobile grid.
+PASS - JavaScript syntax check with node --check
+PASS - window.App global export added for inline buttons
+PASS - syncDomGlobals added for iPhone Safari DOM id compatibility
+PASS - modalRoot no longer depends on implicit id global
+PASS - nav/view/pageTitle/pageSub no longer depend on implicit id globals
+PASS - itemsBox no longer depends on implicit id global
+PASS - modal forms sync DOM globals after opening
+PASS - drawLines syncs DOM globals after rendering item lines
 
 Round 2:
-PASS - New Invoice / New Quotation buttons remain available.
-PASS - Edit/Delete/View action buttons remain visible on mobile cards.
-PASS - Modal header remains accessible while scrolling.
-PASS - Save buttons remain reachable by scrolling to bottom.
-PASS - Existing desktop layout unaffected outside mobile media query.
+PASS - JavaScript syntax check repeated
+PASS - openDocForm path reviewed: modal -> sync globals -> drawLines -> sync globals
+PASS - New Invoice/New Quotation buttons use window.App explicitly through global assignment
+PASS - Edit/Delete row buttons use window.App explicitly through global assignment
+PASS - Desktop behavior preserved
+PASS - Static file structure preserved, no npm/build required
 
-Notes:
-This version focuses on iPhone/Safari usability. It does not change the data model or business logic from v12.
+Note:
+This version specifically fixes the likely Safari issue where element IDs like docClient/itemsBox/modalRoot are not automatically available as globals, which works in some desktop browsers but fails on iPhone Safari.
