@@ -1,22 +1,17 @@
-GM Security Pro Final v14 - Test Report
+GM Security Systems v15 Test Report
 
 Round 1:
-PASS - JavaScript syntax check with node --check
-PASS - window.App global export added for inline buttons
-PASS - syncDomGlobals added for iPhone Safari DOM id compatibility
-PASS - modalRoot no longer depends on implicit id global
-PASS - nav/view/pageTitle/pageSub no longer depend on implicit id globals
-PASS - itemsBox no longer depends on implicit id global
-PASS - modal forms sync DOM globals after opening
-PASS - drawLines syncs DOM globals after rendering item lines
+PASS - JavaScript syntax check
+PASS - minAllowedDocDate exists
+PASS - validateDocDates exists
+PASS - onDocDateChange exists
+PASS - openDocForm no longer calls missing methods
+PASS - Safari touch/click delegation installed
 
 Round 2:
 PASS - JavaScript syntax check repeated
-PASS - openDocForm path reviewed: modal -> sync globals -> drawLines -> sync globals
-PASS - New Invoice/New Quotation buttons use window.App explicitly through global assignment
-PASS - Edit/Delete row buttons use window.App explicitly through global assignment
-PASS - Desktop behavior preserved
-PASS - Static file structure preserved, no npm/build required
-
-Note:
-This version specifically fixes the likely Safari issue where element IDs like docClient/itemsBox/modalRoot are not automatically available as globals, which works in some desktop browsers but fails on iPhone Safari.
+PASS - New Invoice path methods present
+PASS - New Quotation path methods present
+PASS - Edit Invoice/Quotation path methods present
+PASS - Existing v12 inventory methods preserved
+PASS - Existing print/WhatsApp methods preserved

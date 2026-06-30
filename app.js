@@ -1,4 +1,4 @@
-/* GM Security Systems - Static Pro Demo v14 iPhone Safari Action Fix */
+/* GM Security Systems - Static Pro Demo v15 iPhone Safari Date/Button Fix */
 const Logic = (() => {
   const money = n => '$' + Number(n || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   const lbp = n => 'LBP ' + Math.round(Number(n || 0)).toLocaleString();
@@ -148,6 +148,43 @@ const App = {
   itemOptions(){return this.data.inventory.map(i=>`<option value="${i.partNo||''}" data-price="${i.price}">${i.partNo||''} — ${i.description||i.name}</option>`).join('')},
   getClientByName(name){ return this.data.clients.find(c=>this.clientDisplay(c)===name || c.name===name || c.businessName===name || c.companyName===name); },
   getItemByText(txt){ return this.data.inventory.find(x=>(x.description||x.name||'').toLowerCase()===String(txt||'').toLowerCase() || String(x.partNo||'').toLowerCase()===String(txt||'').toLowerCase()); },
+  minAllowedDocDate(list, doc){
+    const currentSeq = Logic.docSeq(doc?.id || '');
+    let dates = (this.data[list] || [])
+      .filter(x => x && x.date && x.id !== doc?.id && Logic.docSeq(x.id) <= currentSeq)
+      .map(x => x.date);
+    if(!doc?.id || !(this.data[list] || []).some(x => x.id === doc.id)){
+      dates = (this.data[list] || []).filter(x => x && x.date).map(x => x.date);
+    }
+    if(list === 'invoices' && doc?.sourceQuoteId){
+      const q = (this.data.quotes || []).find(x => x.id === doc.sourceQuoteId);
+      if(q?.date) dates.push(q.date);
+    }
+    return Logic.maxDate(...dates);
+  },
+  onDocDateChange(){
+    const dateEl = document.getElementById('docDate');
+    const dueEl = document.getElementById('docDue');
+    if(!dateEl || !dueEl) return;
+    dueEl.min = dateEl.value || '';
+    if(dueEl.value && dateEl.value && dueEl.value < dateEl.value) dueEl.value = dateEl.value;
+  },
+  validateDocDates(list, doc){
+    const min = this.minAllowedDocDate(list, doc);
+    if(min && doc.date && doc.date < min){
+      this.toast('Date cannot be before previous document date: ' + min);
+      return false;
+    }
+    if(list === 'quotes' && doc.validUntil && doc.date && doc.validUntil < doc.date){
+      this.toast('Valid Until cannot be before quotation date');
+      return false;
+    }
+    if(list === 'invoices' && doc.due && doc.date && doc.due < doc.date){
+      this.toast('Due Date cannot be before invoice date');
+      return false;
+    }
+    return true;
+  },
   openDocForm(kind,id){
     const isQ=kind==='quote', list=isQ?'quotes':'invoices';
     const old=id?this.data[list].find(x=>x.id===id):null;
@@ -341,5 +378,37 @@ const App = {
   resetDemo(){ if(confirm('Reset all demo data?')){localStorage.removeItem('gm_data_v5');this.load();this.render();} }
 };
 if(typeof window!=='undefined'){ window.Logic=Logic; window.App=App; window.syncDomGlobals=syncDomGlobals; }
-if(typeof document!=='undefined') document.addEventListener('DOMContentLoaded',()=>{ syncDomGlobals(); App.init(); syncDomGlobals(); });
+
+function installSafariButtonFix(){
+  if(typeof document==='undefined') return;
+  const runInlineAppAction = (e) => {
+    const target = e.target && e.target.closest ? e.target.closest('button[onclick], .nav-item[onclick], a[onclick], label[onclick]') : null;
+    if(!target) return;
+    const code = target.getAttribute('onclick') || '';
+    if(!/App\./.test(code)) return;
+    const now = Date.now();
+    if(target.__gmLastTap && now - target.__gmLastTap < 450){
+      e.preventDefault(); e.stopImmediatePropagation();
+      return;
+    }
+    target.__gmLastTap = now;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    try{
+      syncDomGlobals();
+      Function('App','event', code)(window.App, e);
+      setTimeout(syncDomGlobals, 0);
+    }catch(err){
+      console.error('GM action failed:', err);
+      try{ window.App && window.App.toast && window.App.toast('Action error: ' + (err.message || err)); }catch(_e){}
+    }
+  };
+  document.addEventListener('touchend', runInlineAppAction, true);
+  document.addEventListener('click', runInlineAppAction, true);
+  window.addEventListener('error', (ev)=>{
+    try{ window.App && window.App.toast && window.App.toast('JS error: ' + (ev.message || 'unknown')); }catch(e){}
+  });
+}
+
+if(typeof document!=='undefined') document.addEventListener('DOMContentLoaded',()=>{ syncDomGlobals(); installSafariButtonFix(); App.init(); syncDomGlobals(); });
 if(typeof module!=='undefined') module.exports={Logic,App};
