@@ -1,25 +1,20 @@
-GM Security Pro Final v12 - Test Report
+GM Security Pro Final v13 - Mobile Safari Fix Test
 
 Round 1:
-PASS - JavaScript syntax check
-PASS - Default data migration includes stockMovements
-PASS - Inventory fields include brand, supplier, location/shelf
-PASS - Stock movement record creates item history
-PASS - Stock In logic increases quantity
-PASS - Stock Out / invoice deduction decreases quantity
-PASS - Service items are skipped during invoice stock deduction
-PASS - Low stock logic uses Qty <= Min Qty
-PASS - Existing login/print/WhatsApp/date logic remains present
+PASS - CSS syntax appended for mobile Safari.
+PASS - Modal fullscreen on mobile.
+PASS - Modal body scrolls independently with safe bottom padding.
+PASS - Inputs/selects/textareas set to 16px to prevent iPhone Safari zoom issue.
+PASS - Action buttons enlarged for touch.
+PASS - Item line form becomes one-column on mobile.
+PASS - Table action buttons become touch-friendly mobile grid.
 
 Round 2:
-PASS - JavaScript syntax check repeated
-PASS - Movement history record stores item #, description, from/to quantities
-PASS - Invoice deduction creates Stock Out movement with invoice reference
-PASS - Manual item quantity edit can create Adjustment record
-PASS - Inventory tabs render functions are present
-PASS - Items / Movements / Low Stock tabs use searchable tables
-PASS - Static deploy remains package-free: no npm, no build files required
+PASS - New Invoice / New Quotation buttons remain available.
+PASS - Edit/Delete/View action buttons remain visible on mobile cards.
+PASS - Modal header remains accessible while scrolling.
+PASS - Save buttons remain reachable by scrolling to bottom.
+PASS - Existing desktop layout unaffected outside mobile media query.
 
 Notes:
-- Upload only index.html, styles.css, app.js, README.md, TEST_REPORT.txt.
-- Vercel settings stay static/Other with empty install/build commands and output directory set to .
+This version focuses on iPhone/Safari usability. It does not change the data model or business logic from v12.

@@ -22,3 +22,11 @@ Password: gm1234
 - app.js
 - README.md
 - TEST_REPORT.txt
+
+## v13 Mobile Safari Fix
+- Fullscreen mobile modals for invoices, quotations, visits, clients, suppliers, inventory, receipts.
+- Bigger touch buttons on iPhone.
+- Inputs use 16px font to prevent Safari zoom/control issues.
+- Modal body scrolls correctly with bottom safe-area padding.
+- Item lines become one-column on mobile so edit/save is reachable.
+- Table action buttons become mobile-friendly grid.
