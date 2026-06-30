@@ -1,51 +1,34 @@
-# GM Security Systems - Pro Final v16
+# GM Security Pro Final v17
 
-Static HTML/CSS/JS business management app for GM Security Systems.
+Static Vercel-ready version.
 
-## Version v16
-
-This version updates the visual theme to the approved design concept:
-
-- Light dashboard background
-- Dark charcoal left sidebar
-- White cards with soft shadows
-- Softer borders and lighter forms
-- Red/coral brand accents
-- KPI circles in red/gray
-- Preserves v15 iPhone Safari fixes
-- Preserves all business logic from previous versions
-
-## Login
-
-Username: `admin`
-Password: `gm1234`
-
-## Deploy on Vercel
-
-Upload only these files to GitHub:
+Upload these files to GitHub repo root:
 
 - `index.html`
 - `styles.css`
 - `app.js`
+- `view.html`
 - `README.md`
 - `TEST_REPORT.txt`
 
 Vercel settings:
 
-- Framework: Other
+- Framework Preset: Other
 - Install Command: empty
 - Build Command: empty
 - Output Directory: `.`
 
-Do not upload:
+Demo login:
 
-- `package.json`
-- `package-lock.json`
-- `vercel.json`
-- `src`
-- `public`
-- `node_modules`
+- Username: `admin`
+- Password: `gm1234`
 
-## Notes
+## v17 additions
 
-This is a static/localStorage version. Use Export Backup before clearing browser data or changing devices.
+- Online public snapshot link for quotation / invoice / receipt.
+- QR code at the bottom of printed A4 documents.
+- WhatsApp copy now includes the online link.
+- Statement of account has online link + QR code for testing.
+- `view.html` opens snapshot links in read-only mode with Print / Save PDF.
+
+Important: v17 public links are snapshot links, not cloud database links yet. If you edit a document after sending the link, generate and send a fresh link.
