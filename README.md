@@ -1,13 +1,51 @@
-# GM Security Systems - Pro Final v15
+# GM Security Systems - Pro Final v16
 
-## v15 Fix
-- Fixed missing date validation methods that caused New Invoice/New Quotation/Edit to fail after v11 date-control changes.
-- Added iPhone Safari action delegation for buttons using touchend/click capture.
-- Keeps all v12 inventory focus and v14 mobile layout fixes.
+Static HTML/CSS/JS business management app for GM Security Systems.
 
-Upload only:
-- index.html
-- styles.css
-- app.js
-- README.md
-- TEST_REPORT.txt
+## Version v16
+
+This version updates the visual theme to the approved design concept:
+
+- Light dashboard background
+- Dark charcoal left sidebar
+- White cards with soft shadows
+- Softer borders and lighter forms
+- Red/coral brand accents
+- KPI circles in red/gray
+- Preserves v15 iPhone Safari fixes
+- Preserves all business logic from previous versions
+
+## Login
+
+Username: `admin`
+Password: `gm1234`
+
+## Deploy on Vercel
+
+Upload only these files to GitHub:
+
+- `index.html`
+- `styles.css`
+- `app.js`
+- `README.md`
+- `TEST_REPORT.txt`
+
+Vercel settings:
+
+- Framework: Other
+- Install Command: empty
+- Build Command: empty
+- Output Directory: `.`
+
+Do not upload:
+
+- `package.json`
+- `package-lock.json`
+- `vercel.json`
+- `src`
+- `public`
+- `node_modules`
+
+## Notes
+
+This is a static/localStorage version. Use Export Backup before clearing browser data or changing devices.
