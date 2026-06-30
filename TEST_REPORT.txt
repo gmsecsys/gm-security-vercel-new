@@ -1,19 +1,25 @@
-GM SECURITY PRO FINAL v9 - TEST REPORT
+GM Security Pro Final v12 - Test Report
 
 Round 1:
 PASS - JavaScript syntax check
-PASS - Inventory Delete button rendered
-PASS - Delete inventory item confirms before deletion
-PASS - Used inventory item deletion preserves old invoices/quotations
-PASS - Existing receipt edit/delete still present
-PASS - Client/Supplier/Visit delete still present
-PASS - WhatsApp invoice/quote/receipt templates preserved
-PASS - Print A4 functions preserved
+PASS - Default data migration includes stockMovements
+PASS - Inventory fields include brand, supplier, location/shelf
+PASS - Stock movement record creates item history
+PASS - Stock In logic increases quantity
+PASS - Stock Out / invoice deduction decreases quantity
+PASS - Service items are skipped during invoice stock deduction
+PASS - Low stock logic uses Qty <= Min Qty
+PASS - Existing login/print/WhatsApp/date logic remains present
 
 Round 2:
 PASS - JavaScript syntax check repeated
-PASS - Inventory item add/edit/delete flow repeated
-PASS - Quantity/amount auto calculation preserved
-PASS - Item # behavior preserved
-PASS - Grand total USD only preserved
-PASS - Notes hidden when empty preserved
+PASS - Movement history record stores item #, description, from/to quantities
+PASS - Invoice deduction creates Stock Out movement with invoice reference
+PASS - Manual item quantity edit can create Adjustment record
+PASS - Inventory tabs render functions are present
+PASS - Items / Movements / Low Stock tabs use searchable tables
+PASS - Static deploy remains package-free: no npm, no build files required
+
+Notes:
+- Upload only index.html, styles.css, app.js, README.md, TEST_REPORT.txt.
+- Vercel settings stay static/Other with empty install/build commands and output directory set to .
