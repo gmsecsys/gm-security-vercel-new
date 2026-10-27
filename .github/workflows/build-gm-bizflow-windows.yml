@@ -1,0 +1,51 @@
+name: Build and Double-Test GM BizFlow Windows
+on:
+  push:
+    branches: [gm-bizflow-release]
+  workflow_dispatch:
+jobs:
+  build-test:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: gm_bizflow
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build tools
+        run: python -m pip install --upgrade pip pyinstaller
+      - name: Test pass 1
+        run: python -m unittest discover -s tests -v
+      - name: Test pass 2
+        run: python -m unittest discover -s tests -v
+      - name: Build Windows app
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name GM_BizFlow --paths . app.py
+      - name: Smoke test EXE
+        run: .\dist\GM_BizFlow.exe --self-test
+      - name: Ensure Inno Setup
+        shell: powershell
+        run: |
+          if (!(Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')) { choco install innosetup -y --no-progress }
+      - name: Build Setup.exe
+        shell: powershell
+        run: "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' installer.iss"
+      - name: Silent install Setup.exe
+        shell: powershell
+        run: |
+          $dest = Join-Path $env:TEMP 'GM BizFlow Test Install'
+          Start-Process -FilePath '.\installer_output\GM_BizFlow_Setup.exe' -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=`"$dest`"" -Wait
+          if (!(Test-Path (Join-Path $dest 'GM_BizFlow.exe'))) { throw 'Installed EXE missing' }
+          & (Join-Path $dest 'GM_BizFlow.exe') --self-test
+      - name: Verify installer exists
+        shell: powershell
+        run: |
+          $p='.\installer_output\GM_BizFlow_Setup.exe'
+          if (!(Test-Path $p)) { throw 'Setup.exe was not created' }
+          Get-Item $p | Format-List Name,Length,LastWriteTime
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GM_BizFlow_Windows_Release
+          path: gm_bizflow/installer_output/GM_BizFlow_Setup.exe
+          if-no-files-found: error
