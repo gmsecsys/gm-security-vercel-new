@@ -1,8 +1,10 @@
 name: Build and Double-Test GM BizFlow Windows
 on:
   push:
-    branches: [gm-bizflow-release]
-  workflow_dispatch:
+    branches:
+      - gm-bizflow-release
+  workflow_dispatch: {}
+
 jobs:
   build-test:
     runs-on: windows-latest
@@ -27,11 +29,14 @@ jobs:
       - name: Ensure Inno Setup
         shell: powershell
         run: |
-          if (!(Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')) { choco install innosetup -y --no-progress }
+          if (!(Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')) {
+            choco install innosetup -y --no-progress
+          }
       - name: Build Setup.exe
         shell: powershell
-        run: "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' installer.iss"
-      - name: Silent install Setup.exe
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' installer.iss
+      - name: Silent install Setup.exe and smoke test installed app
         shell: powershell
         run: |
           $dest = Join-Path $env:TEMP 'GM BizFlow Test Install'
