@@ -19,7 +19,7 @@ class App(FixedApp):
             self.side,text='▧   Invoices / Sales History',anchor='w',height=42,corner_radius=9,
             fg_color='transparent',hover_color=NAV2,text_color='#E8F1F6',font=('Segoe UI',12,'bold'),
             command=lambda:self.show_page('invoices'))
-        b.pack(fill='x',padx=12,pady=3)
+        b.pack(fill='x',padx=12,pady=3,before=self.nav_buttons['products'])
         self.nav_buttons['invoices']=b
         self.build_invoices()
         self.invoice_period='today';self.invoice_custom=(None,None)
