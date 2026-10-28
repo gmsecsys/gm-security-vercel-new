@@ -23,7 +23,7 @@ jobs:
       - name: Test pass 2
         run: python -m unittest discover -s tests -v
       - name: Build Windows app
-        run: pyinstaller --noconfirm --clean --onefile --windowed --name GM_BizFlow --paths . app.py
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name GM_BizFlow --paths . launcher.py
       - name: Smoke test EXE
         run: .\dist\GM_BizFlow.exe --self-test
       - name: Ensure Inno Setup
