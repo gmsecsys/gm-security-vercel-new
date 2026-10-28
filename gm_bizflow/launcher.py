@@ -1,7 +1,8 @@
 from __future__ import annotations
 import sys
 from datetime import datetime
-from app_modern import App, DB, DATA, self_test
+from app_fix import App
+from app_modern import DB, DATA, self_test
 
 
 def daily_backup_on_exit(app):
