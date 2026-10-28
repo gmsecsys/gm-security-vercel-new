@@ -1,5 +1,5 @@
 from __future__ import annotations
-import sqlite3, json, shutil
+import sqlite3, json, shutil, atexit
 from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
@@ -11,6 +11,7 @@ class BizFlowDB:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.init_db()
+        atexit.register(self.daily_backup)
 
     @contextmanager
     def connect(self):
@@ -230,4 +231,20 @@ class BizFlowDB:
 
     def backup(self,destination):
         destination=Path(destination); destination.parent.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(self.db_path,destination); return destination
+        source=sqlite3.connect(self.db_path)
+        target=sqlite3.connect(destination)
+        try:
+            source.backup(target)
+            target.commit()
+        finally:
+            target.close(); source.close()
+        return destination
+
+    def daily_backup(self):
+        try:
+            backup_dir=self.db_path.parent/'backups'
+            backup_dir.mkdir(parents=True,exist_ok=True)
+            destination=backup_dir/f"GM_BizFlow_{datetime.now().strftime('%Y-%m-%d')}.db"
+            return self.backup(destination)
+        except Exception:
+            return None
