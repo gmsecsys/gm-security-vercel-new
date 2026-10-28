@@ -1,7 +1,7 @@
 from __future__ import annotations
 import sys
 from datetime import datetime
-from app_fix import App
+from app_invoice import App
 from app_modern import DB, DATA, self_test
 
 
