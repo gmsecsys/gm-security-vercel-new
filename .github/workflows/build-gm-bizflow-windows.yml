@@ -17,13 +17,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install build tools
-        run: python -m pip install --upgrade pip pyinstaller
+        run: python -m pip install --upgrade pip pyinstaller customtkinter
       - name: Test pass 1
         run: python -m unittest discover -s tests -v
       - name: Test pass 2
         run: python -m unittest discover -s tests -v
       - name: Build Windows app
-        run: pyinstaller --noconfirm --clean --onefile --windowed --name GM_BizFlow --paths . launcher.py
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name GM_BizFlow --paths . --collect-all customtkinter launcher.py
       - name: Smoke test EXE
         run: .\dist\GM_BizFlow.exe --self-test
       - name: Ensure Inno Setup
