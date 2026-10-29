@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes,viewport-fit=cover">
+<title>GM BizFlow — Desktop View</title>
+<style>
+html,body{margin:0;padding:0;background:#eef3f8;width:100%;min-height:100%;overflow-x:hidden;font-family:Segoe UI,Arial,sans-serif}
+#stage{position:relative;width:1280px;transform-origin:top left}
+#app{display:block;width:1280px;height:1000px;border:0;background:#eef3f8}
+#hint{position:fixed;right:10px;bottom:10px;z-index:9;background:#183950;color:#fff;border-radius:999px;padding:7px 10px;font-size:11px;opacity:.72;box-shadow:0 4px 14px #0002}
+@media(min-width:1280px){#hint{display:none}}
+</style>
+</head>
+<body>
+<div id="stage"><iframe id="app" src="./" title="GM BizFlow"></iframe></div>
+<div id="hint">Desktop View</div>
+<script>
+(function(){
+ const DESIGN=1280, stage=document.getElementById('stage'), frame=document.getElementById('app');
+ function fit(){
+   const scale=Math.min(1,window.innerWidth/DESIGN);
+   stage.style.transform='scale('+scale+')';
+   stage.style.height=(frame.offsetHeight*scale)+'px';
+ }
+ window.addEventListener('resize',fit,{passive:true});
+ window.addEventListener('orientationchange',()=>setTimeout(fit,120),{passive:true});
+ frame.addEventListener('load',()=>{try{const h=Math.max(1000,frame.contentDocument.documentElement.scrollHeight,frame.contentDocument.body.scrollHeight);frame.style.height=h+'px'}catch(e){} fit();});
+ fit();
+})();
+</script>
+</body>
+</html>
