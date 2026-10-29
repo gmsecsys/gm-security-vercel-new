@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-if(!window.d||!window.$) return;
+if(typeof d==='undefined'||typeof $==='undefined') return;
 d.customers=d.customers||[];
 
 const nav=document.getElementById('nav');
@@ -9,7 +9,7 @@ if(nav&&!nav.querySelector('[data-p="customers"]')){
   const productsBtn=nav.querySelector('[data-p="products"]'); nav.insertBefore(btn,productsBtn);
   btn.addEventListener('click',()=>go('customers'));
 }
-if(window.titles) titles.customers='Customers';
+titles.customers='Customers';
 const badge=document.querySelector('.badge'); if(badge) badge.textContent='Interactive Web Demo v2.3';
 
 if(!document.getElementById('customers')){
