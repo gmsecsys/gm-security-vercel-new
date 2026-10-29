@@ -10,7 +10,7 @@ if(nav&&!nav.querySelector('[data-p="customers"]')){
   btn.addEventListener('click',()=>go('customers'));
 }
 titles.customers='Customers';
-const badge=document.querySelector('.badge'); if(badge) badge.textContent='Interactive Web Demo v2.3';
+const badge=document.querySelector('.badge'); if(badge) badge.textContent='Interactive Web Demo v2.4';
 
 if(!document.getElementById('customers')){
  const sec=document.createElement('section'); sec.id='customers'; sec.className='page';
@@ -26,6 +26,11 @@ if(saleCustomer&&!document.getElementById('customerSuggestions')){
 }
 const phone=document.getElementById('phone');
 if(phone&&!document.getElementById('customerPhones')){const dl=document.createElement('datalist');dl.id='customerPhones';phone.setAttribute('list','customerPhones');phone.parentNode.appendChild(dl)}
+
+const search=document.getElementById('search');
+if(search&&!document.getElementById('checkoutNewProductBtn')){
+ const btn=document.createElement('button'); btn.id='checkoutNewProductBtn'; btn.className='btn ghost'; btn.type='button'; btn.textContent='+ New Product'; btn.onclick=newProductFromCheckout; search.parentNode.insertBefore(btn,search.nextSibling);
+}
 
 const oldSp=document.getElementById('sp');
 if(oldSp&&oldSp.tagName==='SELECT'){
@@ -48,6 +53,7 @@ window.renderCustomerSuggestions=function(){if($('customerSuggestions'))$('custo
 window.productMatch=function(text){let q=String(text||'').trim().toLowerCase();if(!q)return null;return d.products.find(p=>[p.name,p.code,p.model].some(v=>String(v||'').toLowerCase()===q))||d.products.find(p=>[p.name,p.code,p.model].some(v=>String(v||'').toLowerCase().startsWith(q)))};
 window.syncPurchaseProduct=function(){let p=productMatch($('spText').value);$('spHidden').value=p?p.id:''};
 window.newProductFromPurchase=function(){let n=$('spText').value.trim();go('products');$('pn').value=n;setTimeout(()=>$('pn').focus(),0)};
+window.newProductFromCheckout=function(){let n=$('search').value.trim();go('products');$('pn').value=n;setTimeout(()=>$('pn').focus(),0)};
 window.renderTypeahead=function(){renderCustomerSuggestions();if($('productSuggestions'))$('productSuggestions').innerHTML=d.products.map(p=>`<option value="${esc(p.name)}">${esc([p.model,p.code,p.family,p.category].filter(Boolean).join(' • '))}</option>`).join('')};
 
 const oldRefresh=window.refresh;
