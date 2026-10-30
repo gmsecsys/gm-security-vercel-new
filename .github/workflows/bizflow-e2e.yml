@@ -1,0 +1,21 @@
+name: GM BizFlow Full E2E
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'bizflow-demo/**'
+      - '.github/workflows/bizflow-e2e.yml'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Playwright package
+        run: npm install --no-save playwright@1.56.1
+      - name: Run GM BizFlow browser test
+        run: node bizflow-demo/e2e-test.js
