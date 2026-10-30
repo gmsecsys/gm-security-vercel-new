@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=1240,initial-scale=.32,maximum-scale=1,user-scalable=yes"><title>GM BizFlow</title></head><body style="font-family:Segoe UI,Arial,sans-serif;background:#eef3f8;color:#203040;padding:30px">Opening GM BizFlow v2.5…
+<script>
+(async function(){
+ try{
+  const r=await fetch('./v2.html?v=8d1f70d4',{cache:'no-store'});
+  if(!r.ok) throw new Error('Base app failed to load');
+  let html=await r.text();
+  const add='<script src="./enhancements-v25.js?v=8d1f70d4"></'+'script></body>';
+  html=html.replace('</body>',add);
+  document.open();document.write(html);document.close();
+ }catch(e){document.body.innerHTML='<h3>GM BizFlow could not load.</h3><p>Please refresh the page.</p>'}
+})();
+</script>
+</body></html>
