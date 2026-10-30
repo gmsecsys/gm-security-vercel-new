@@ -33,6 +33,14 @@ async function step(name, fn){
 }
 async function nav(page,p){ await page.locator(`#nav button[data-p="${p}"]`).click(); await sleep(120); }
 async function toastText(page){ return (await page.locator('#toast').innerText().catch(()=>'')) || ''; }
+async function selectPartial(page, selector, text){
+  const value = await page.locator(`${selector} option`).evaluateAll((opts,t)=>{
+    const o=opts.find(x=>(x.textContent||'').includes(t)); return o?o.value:null;
+  },text);
+  ok(value!==null && value!==undefined && value!=='',`option containing "${text}" not found in ${selector}`);
+  await page.locator(selector).selectOption(value);
+  return value;
+}
 
 (async()=>{
   await new Promise(r=>server.listen(port,'127.0.0.1',r));
@@ -46,8 +54,8 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
   await page.evaluate(()=>localStorage.removeItem('gmbf_live'));
   await page.reload({waitUntil:'networkidle'});
 
-  await step('App loads latest v3.0 with all main pages', async()=>{
-    ok((await page.locator('.badge').innerText()).includes('v3.0'),'badge is not v3.0');
+  await step('App loads latest v3.1 with all main pages', async()=>{
+    ok((await page.locator('.badge').innerText()).includes('v3.1'),'badge is not v3.1');
     const pages=['dashboard','pos','invoices','products','purchase','adjust','suppliers','delivery','reports','settings'];
     for(const p of pages) ok(await page.locator(`#${p}`).count()===1,`missing page ${p}`);
     ok(await page.locator('#customers').count()===1,'missing Customers page');
@@ -79,7 +87,7 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     ok(await page.locator('#sfee').inputValue()==='1.25','purchase fee lost');
   });
 
-  await step('Purchase shortcut creates new Product and returns to Purchase with draft intact', async()=>{
+  await step('Purchase shortcut creates new Product and returns to Purchase with full draft intact', async()=>{
     await page.locator('#spText').fill('E2E Cola');
     await page.locator('#purchase button', {hasText:'+ New Product'}).click();
     await sleep(100);
@@ -99,11 +107,14 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     await sleep(150);
     ok(await page.locator('#purchase').evaluate(el=>el.classList.contains('on')),'did not return to Purchase');
     ok(await page.locator('#spText').inputValue()==='E2E Cola','new product not selected');
-    ok(await page.locator('#sref').inputValue()==='TEST-INV-001','purchase draft reference lost after product create');
+    ok(await page.locator('#sref').inputValue()==='TEST-INV-001','purchase reference lost after product create');
     ok((await page.locator('#ss option:checked').innerText()).includes('E2E Supplier'),'supplier selection lost');
+    ok(await page.locator('#sq').inputValue()==='5','purchase quantity lost after product create');
+    ok(await page.locator('#sc').inputValue()==='10','purchase cost lost after product create');
+    ok(await page.locator('#sfee').inputValue()==='1.25','purchase fee lost after product create');
   });
 
-  await step('Supplier purchase posts stock and weighted effective cost', async()=>{
+  await step('Supplier purchase posts stock and weighted effective cost then clears saved draft', async()=>{
     await page.getByRole('button',{name:'Add Purchase / Stock'}).click();
     await sleep(150);
     const state=await page.evaluate(()=>({p:d.products.find(x=>x.code==='990000000001'), purchases:d.purchases.filter(x=>d.products.find(p=>p.id===x.productId)?.code==='990000000001')}));
@@ -112,16 +123,21 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     ok(state.purchases.length===1,'purchase record missing');
     ok(Math.abs(state.purchases[0].effective-11.25)<0.001,'effective unit cost wrong');
     ok((await page.locator('#purchaseHistory').innerText()).includes('TEST-INV-001'),'purchase history missing reference');
+    ok(await page.locator('#sref').inputValue()==='','saved purchase reference was not cleared');
+    ok(await page.locator('#spText').inputValue()==='','saved purchase product was not cleared');
+    ok(await page.locator('#ss').inputValue()==='','saved purchase supplier was not cleared');
   });
 
   await step('Quick Stock IN and OUT work inside Purchase without leaving page', async()=>{
     await page.getByRole('button',{name:'+ Stock IN'}).click();
+    await selectPartial(page,'#quickStockProduct','E2E Cola');
     await page.locator('#quickStockQty').fill('3');
     await page.locator('#quickStockReason').selectOption({label:'Correction'});
     await page.locator('#quickStockSave').click();
     let stock=await page.evaluate(()=>d.products.find(x=>x.code==='990000000001').stock);
     ok(stock===10,`Stock IN expected 10, got ${stock}`);
     await page.getByRole('button',{name:'− Stock OUT'}).click();
+    await selectPartial(page,'#quickStockProduct','E2E Cola');
     await page.locator('#quickStockQty').fill('2');
     await page.locator('#quickStockReason').selectOption({label:'Damaged'});
     await page.locator('#quickStockSave').click();
@@ -130,7 +146,7 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     ok(await page.locator('#purchase').evaluate(el=>el.classList.contains('on')),'left Purchase page during quick stock');
   });
 
-  await step('Leaving a saved Purchase should NOT show false unsaved-changes warning', async()=>{
+  await step('Leaving a saved Purchase does not show false unsaved-changes warning', async()=>{
     let dialogMessage=null;
     page.once('dialog',async d=>{dialogMessage=d.message(); await d.accept();});
     await page.locator('#nav button[data-p="pos"]').click();
@@ -216,10 +232,12 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     ok((await toastText(page)).includes('already exists'),'duplicate barcode not rejected');
     ok(await page.evaluate(()=>d.products.length)===count,'duplicate product was created');
     await page.locator('#pb').fill(''); await page.locator('#pn').fill('');
-    const row=page.locator('#pt tr').filter({hasText:'E2E Cola'}).first();
+    let row=page.locator('#pt tr').filter({hasText:'E2E Cola'}).first();
     await row.getByRole('button',{name:'Archive'}).click();
+    row=page.locator('#pt tr').filter({hasText:'E2E Cola'}).first();
     ok((await row.innerText()).includes('Archived'),'archive failed');
     await row.getByRole('button',{name:'Restore'}).click();
+    row=page.locator('#pt tr').filter({hasText:'E2E Cola'}).first();
     ok((await row.innerText()).includes('Active'),'restore failed');
   });
 
@@ -237,7 +255,7 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
 
   await step('Direct Stock Adjustment page records IN/OUT correctly', async()=>{
     await nav(page,'adjust');
-    await page.locator('#ap').selectOption({label:/E2E Cola/});
+    await selectPartial(page,'#ap','E2E Cola');
     await page.locator('#atype').selectOption('IN'); await page.locator('#aq').fill('1'); await page.locator('#areason').selectOption({label:'Correction'}); await page.getByRole('button',{name:'Save Adjustment'}).click();
     let stock=await page.evaluate(()=>d.products.find(x=>x.code==='990000000001').stock); ok(stock===7,`direct IN expected 7 got ${stock}`);
     await page.locator('#atype').selectOption('OUT'); await page.locator('#aq').fill('1'); await page.locator('#areason').selectOption({label:'Sample'}); await page.getByRole('button',{name:'Save Adjustment'}).click();
@@ -252,7 +270,7 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     ok(!(await page.locator('#st').innerText()).includes('Temporary Supplier'),'supplier delete failed');
   });
 
-  await step('Reports center runs all key reports and Excel export downloads', async()=>{
+  await step('Reports center runs key reports, Excel export and customer letter', async()=>{
     await nav(page,'reports');
     ok(await page.locator('#reportType option').count()===9,'expected 9 reports');
     await page.locator('#reportPeriod').selectOption('all');
@@ -260,13 +278,13 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
     ok((await page.locator('#reportBody').innerText()).includes('E2E Customer'),'Sales Report missing sale');
     const dlPromise=page.waitForEvent('download'); await page.locator('#exportExcelBtn').click(); const dl=await dlPromise; ok(dl.suggestedFilename().endsWith('.xls'),'Excel export filename is not .xls');
     await page.locator('#reportType').selectOption('customerStatement');
-    await page.locator('#reportCustomer').selectOption({label:/E2E Customer/}); await page.locator('#runReportBtn').click();
+    await selectPartial(page,'#reportCustomer','E2E Customer'); await page.locator('#runReportBtn').click();
     ok((await page.locator('#reportBody').innerText()).includes('E2E Cola'),'Customer Statement missing sale items');
     const popupPromise=context.waitForEvent('page'); await page.locator('#customerLetterBtn').click(); const popup=await popupPromise; await popup.waitForLoadState('domcontentloaded'); ok((await popup.locator('body').innerText()).includes('E2E Customer'),'Customer letter missing customer'); await popup.close();
     await page.locator('#reportType').selectOption('pl'); await page.locator('#runReportBtn').click(); ok((await page.locator('#reportBody').innerText()).includes('Sales Revenue'),'P&L failed');
-    await page.locator('#reportType').selectOption('supplierPurchases'); await page.locator('#reportSupplier').selectOption({label:'E2E Supplier'}); await page.locator('#runReportBtn').click(); ok((await page.locator('#reportBody').innerText()).includes('TEST-INV-001'),'Supplier Purchase report missing invoice');
+    await page.locator('#reportType').selectOption('supplierPurchases'); await selectPartial(page,'#reportSupplier','E2E Supplier'); await page.locator('#runReportBtn').click(); ok((await page.locator('#reportBody').innerText()).includes('TEST-INV-001'),'Supplier Purchase report missing invoice');
     await page.locator('#reportType').selectOption('inventory'); await page.locator('#runReportBtn').click(); ok((await page.locator('#reportBody').innerText()).includes('E2E Cola'),'Inventory report missing product');
-    await page.locator('#reportType').selectOption('stockMovement'); await page.locator('#reportPeriod').selectOption('all').catch(()=>{}); await page.locator('#runReportBtn').click(); ok((await page.locator('#reportBody').innerText()).includes('E2E Cola'),'Stock Movement report missing product');
+    await page.locator('#reportType').selectOption('stockMovement'); await page.locator('#reportPeriod').selectOption('all'); await page.locator('#runReportBtn').click(); ok((await page.locator('#reportBody').innerText()).includes('E2E Cola'),'Stock Movement report missing product');
   });
 
   await step('Expense entry feeds Profit & Loss and Settings save persists', async()=>{
@@ -290,9 +308,8 @@ async function toastText(page){ return (await page.locator('#toast').innerText()
   if(jsErrors.length) issues.push('JavaScript console/page errors: '+jsErrors.join(' | '));
   console.log('\n=== GM BIZFLOW E2E SUMMARY ===');
   for(const [s,n] of results) console.log(`${s}: ${n}`);
-  if(issues.length){
-    console.log('\n=== ISSUES ==='); issues.forEach((x,i)=>console.log(`${i+1}. ${x}`));
-  } else console.log('\nNO ISSUES FOUND');
+  if(issues.length){ console.log('\n=== ISSUES ==='); issues.forEach((x,i)=>console.log(`${i+1}. ${x}`)); }
+  else console.log('\nNO ISSUES FOUND');
 
   await browser.close(); server.close();
   process.exit(issues.length?1:0);
